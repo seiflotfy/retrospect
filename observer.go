@@ -1,34 +1,62 @@
 package observer
 
 import (
+	"math"
 	"time"
 )
 
-var instance *Report
+// Observer ...
+type Observer struct {
+	namespace string
+	reports   map[string]*Report
+}
 
-type callBackFunc func(id string, sum Summary, payload ...interface{})
-
-// Init ...
-func Init(namespace string) {
-	instance = &Report{
+// New ...
+func New(namespace string) *Observer {
+	return &Observer{
 		namespace: namespace,
-		summaries: make(map[string]*Summary),
+		reports:   make(map[string]*Report),
 	}
 }
 
-// This ...
-func This(id string, callback callBackFunc) {
+func (obs *Observer) update(id string, elapsed time.Duration) {
+	if _, ok := obs.reports[id]; !ok {
+		obs.reports[id] = &Report{
+			id:  id,
+			min: time.Duration(math.MaxInt64),
+		}
+	}
+	obs.reports[id].update(elapsed)
 }
 
-// ThisOnSlowt ...
-func ThisOnSlowt(id string, tolerance time.Duration, callback callBackFunc) {
-	This(id, callback)
+// Clear ...
+func (obs *Observer) Clear(id string) {
+	delete(obs.reports, id)
 }
 
-// PrintThis ...
-func PrintThis(id string) {
+// ClearAll ...
+func (obs *Observer) ClearAll(id string) {
+	obs.reports = make(map[string]*Report)
 }
 
-// PrintThisOnSlowt ...
-func PrintThisOnSlow(id string, tolerance time.Duration) {
+// Measure ...
+func (obs *Observer) Measure(id string, callback ReportFunc) func() {
+	return obs.MeasureOnSlow(id, 0, callback)
+}
+
+// MeasureOnSlow ...
+func (obs *Observer) MeasureOnSlow(id string, maxDuration time.Duration, callback ReportFunc) func() {
+	now := time.Now()
+	return func() {
+		elapsed := time.Since(now)
+		obs.update(id, elapsed)
+		if callback != nil {
+			callback(id, elapsed, obs.reports[id].count)
+		}
+	}
+}
+
+// Get ...
+func (obs *Observer) Get(id string) *Report {
+	return obs.reports[id]
 }
