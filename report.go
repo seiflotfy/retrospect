@@ -1,6 +1,8 @@
 package observer
 
-import "time"
+import (
+	"time"
+)
 
 // ReportFunc ...
 type ReportFunc func(id string, duration time.Duration, count uint64)
@@ -27,4 +29,32 @@ func (r *Report) update(elapsed time.Duration) {
 	r.total += elapsed
 	r.count++
 	r.avg = r.total / time.Duration(r.count)
+}
+
+func (r *Report) ID() string {
+	return r.id
+}
+
+func (r *Report) Last() time.Duration {
+	return r.last
+}
+
+func (r *Report) Min() time.Duration {
+	return r.min
+}
+
+func (r *Report) Max() time.Duration {
+	return r.max
+}
+
+func (r *Report) Total() time.Duration {
+	return r.total
+}
+
+func (r *Report) Average() time.Duration {
+	return r.avg
+}
+
+func (r *Report) Count() uint64 {
+	return r.count
 }

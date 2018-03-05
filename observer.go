@@ -1,6 +1,7 @@
 package observer
 
 import (
+	"fmt"
 	"math"
 	"time"
 )
@@ -58,5 +59,6 @@ func (obs *Observer) MeasureOnSlow(id string, maxDuration time.Duration, callbac
 
 // Get ...
 func (obs *Observer) Get(id string) *Report {
+	fmt.Println(obs.reports)
 	return obs.reports[id]
 }
