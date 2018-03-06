@@ -5,26 +5,26 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/seiflotfy/observer"
+	hindsight "github.com/seiflotfy/hindsight"
 )
 
-var obs = observer.New("Hello")
+var obs = hindsight.New("Hello")
 
-func print(id string, elapsed time.Duration, count uint64) {
-	fmt.Println(id, elapsed, count)
+func print(o hindsight.Observation) {
+	fmt.Println(o.ID(), o.Elapsed(), o.Count(), o.Payload())
 }
 
-func demo() {
-	defer obs.Measure("demo", print)()
+func demo(i int) {
+	_, mfunc := obs.Observe(print, i)
+	defer mfunc(nil)
 	<-time.After(time.Millisecond * time.Duration(rand.Int63n(1e3)))
 }
 
 func main() {
-	id := "demo"
 	for i := 0; i < 10; i++ {
-		demo()
+		demo(i)
 	}
-	report := obs.Get(id)
-	fmt.Printf("%s func report\nLast exec duration %v\nAvg exec duration: %v\nMin exec duration: %v\nMax exec duration: %v\nNumber of exec: %v\n",
-		report.ID(), report.Last(), report.Average(), report.Min(), report.Max(), report.Count())
+	summary := obs.Summary()
+	fmt.Printf("%s func summary\nLast exec duration %v\nAvg exec duration: %v\nMin exec duration: %v\nMax exec duration: %v\nNumber of exec: %v\n",
+		summary.Namespace(), summary.Last(), summary.Average(), summary.Min(), summary.Max(), summary.Count())
 }
