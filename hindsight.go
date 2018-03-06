@@ -9,34 +9,31 @@ import (
 // Hindsight ...
 type Hindsight struct {
 	summary *Summary
-	queue   chan *Observation
+	queue   chan *Result
 }
 
 // New ...
 func New(namespace string) *Hindsight {
 	hs := &Hindsight{
 		summary: newSummary(namespace),
-		queue:   make(chan *Observation, 1e5),
+		queue:   make(chan *Result, 1e5),
 	}
 	go hs.dequeue()
 	return hs
 }
 
 func (hs *Hindsight) dequeue() {
-	for {
-		select {
-		case o := <-hs.queue:
-			hs.summary.update(o.elapsed)
-			o.count = hs.summary.count
-			if o.done != nil {
-				o.done(*o)
-			}
+	for o := range hs.queue {
+		hs.summary.update(o.elapsed)
+		o.count = hs.summary.count
+		if o.done != nil {
+			o.done(*o)
 		}
 	}
 }
 
 func (hs *Hindsight) push(id uint64, elapsed time.Duration, done CallbackFunc, payload interface{}) {
-	hs.queue <- &Observation{
+	hs.queue <- &Result{
 		namespace: hs.summary.namespace,
 		id:        id,
 		elapsed:   elapsed,
@@ -47,21 +44,23 @@ func (hs *Hindsight) push(id uint64, elapsed time.Duration, done CallbackFunc, p
 }
 
 // Observe ...
-func (hs *Hindsight) Observe(done CallbackFunc, payload interface{}) (uint64, func(error) error) {
+func (hs *Hindsight) Observe(done CallbackFunc, payload interface{}) func() error {
 	return hs.ObserveSlow(0, done, payload)
 }
 
 // ObserveSlow ...
-func (hs *Hindsight) ObserveSlow(maxDuration time.Duration, done CallbackFunc, payload interface{}) (uint64, func(error) error) {
+func (hs *Hindsight) ObserveSlow(slow time.Duration, done CallbackFunc, payload interface{}) func() error {
 	now := time.Now()
 	id := rand.Uint64()
 	finished := false
-	return id, func(err error) error {
+	return func() error {
 		if finished {
 			return fmt.Errorf("observation over, can't call same func twice")
 		}
 		elapsed := time.Since(now)
-		hs.push(id, elapsed, done, payload)
+		if slow <= elapsed {
+			hs.push(id, elapsed, done, payload)
+		}
 		finished = true
 		return nil
 	}
