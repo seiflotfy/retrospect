@@ -5,10 +5,9 @@ import "time"
 // CallbackFunc ...
 type CallbackFunc func(Result)
 
-// Result ...
+// Result contains the data about the measurement/observation
 type Result struct {
 	namespace string
-	id        uint64
 	elapsed   time.Duration
 	count     uint64
 	payload   interface{}
@@ -16,27 +15,22 @@ type Result struct {
 	done CallbackFunc
 }
 
-// Count ...
+// Count returns the number of the  measurment
 func (res *Result) Count() uint64 {
 	return res.count
 }
 
-// Namespace ...
+// Namespace returns the observer namespace
 func (res *Result) Namespace() string {
 	return res.namespace
 }
 
-// ID ...
-func (res *Result) ID() uint64 {
-	return res.id
-}
-
-// Elapsed ...
+// Elapsed returns the elapsed duration of the measurement
 func (res *Result) Elapsed() time.Duration {
 	return res.elapsed
 }
 
-// Payload ...
+// Payload the user passed data to the measurment/observation
 func (res *Result) Payload() interface{} {
 	return res.payload
 }

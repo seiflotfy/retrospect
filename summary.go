@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Summary ...
+// Summary represents the stats on elapsed durations for a namespace
 type Summary struct {
 	namespace string
 	last      time.Duration
@@ -36,37 +36,37 @@ func (s *Summary) update(elapsed time.Duration) {
 	s.avg = s.total / time.Duration(s.count)
 }
 
-// Namespace ...
+// Namespace returns the observation namespace
 func (s *Summary) Namespace() string {
 	return s.namespace
 }
 
-// Last ..
+// Last returns the last elapsed duration
 func (s *Summary) Last() time.Duration {
 	return s.last
 }
 
-// Min ...
+// Min returns the minimum elpased duration
 func (s *Summary) Min() time.Duration {
 	return s.min
 }
 
-// Max ...
+// Max returns the maximum elapsed duration
 func (s *Summary) Max() time.Duration {
 	return s.max
 }
 
-// Total ...
+// Total returns total elapsed duration
 func (s *Summary) Total() time.Duration {
 	return s.total
 }
 
-// Average ...
+// Average returns the average elapsed duration
 func (s *Summary) Average() time.Duration {
 	return s.avg
 }
 
-// Count ...
+// Count returns the number of elapsed measurements
 func (s *Summary) Count() uint64 {
 	return s.count
 }

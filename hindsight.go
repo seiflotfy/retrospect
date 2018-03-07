@@ -2,7 +2,6 @@ package hindsight
 
 import (
 	"fmt"
-	"math/rand"
 	"time"
 )
 
@@ -10,6 +9,8 @@ import (
 type Hindsight struct {
 	summary *Summary
 	queue   chan *Result
+	clear   chan struct{}
+	stop    chan struct{}
 }
 
 // New ...
@@ -23,19 +24,25 @@ func New(namespace string) *Hindsight {
 }
 
 func (hs *Hindsight) dequeue() {
-	for o := range hs.queue {
-		hs.summary.update(o.elapsed)
-		o.count = hs.summary.count
-		if o.done != nil {
-			o.done(*o)
+	for {
+		select {
+		case o := <-hs.queue:
+			hs.summary.update(o.elapsed)
+			o.count = hs.summary.count
+			if o.done != nil {
+				o.done(*o)
+			}
+		case <-hs.clear:
+			hs.queue = make(chan *Result)
+		case <-hs.stop:
+			return
 		}
 	}
 }
 
-func (hs *Hindsight) push(id uint64, elapsed time.Duration, done CallbackFunc, payload interface{}) {
+func (hs *Hindsight) push(elapsed time.Duration, done CallbackFunc, payload interface{}) {
 	hs.queue <- &Result{
 		namespace: hs.summary.namespace,
-		id:        id,
 		elapsed:   elapsed,
 		count:     0,
 		done:      done,
@@ -43,15 +50,18 @@ func (hs *Hindsight) push(id uint64, elapsed time.Duration, done CallbackFunc, p
 	}
 }
 
-// Observe ...
+// Observe returns a function that when called measures the elapsed duration
+// and triggeres the done with the payload as an argument
+// if called again it will return error
 func (hs *Hindsight) Observe(done CallbackFunc, payload interface{}) func() error {
 	return hs.ObserveSlow(0, done, payload)
 }
 
-// ObserveSlow ...
+// ObserveSlow returns a function that when called measures the elapsed duration
+// and triggeres the done with the payload as an argument if the given slow duration is exceeded
+// if called again it will return error
 func (hs *Hindsight) ObserveSlow(slow time.Duration, done CallbackFunc, payload interface{}) func() error {
 	now := time.Now()
-	id := rand.Uint64()
 	finished := false
 	return func() error {
 		if finished {
@@ -59,14 +69,24 @@ func (hs *Hindsight) ObserveSlow(slow time.Duration, done CallbackFunc, payload 
 		}
 		elapsed := time.Since(now)
 		if slow <= elapsed {
-			hs.push(id, elapsed, done, payload)
+			hs.push(elapsed, done, payload)
 		}
 		finished = true
 		return nil
 	}
 }
 
-// Summary ...
+// Summary return a summary of all Results
 func (hs *Hindsight) Summary() *Summary {
 	return hs.summary
+}
+
+// Clear purges all observations
+func (hs *Hindsight) Clear() {
+	hs.clear <- struct{}{}
+}
+
+// Stop all observations and basically kill the observer
+func (hs *Hindsight) Stop() {
+	hs.stop <- struct{}{}
 }
