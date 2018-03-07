@@ -22,7 +22,7 @@ import (
 	hindsight "github.com/seiflotfy/hindsight"
 )
 
-var obs = hindsight.New("Hello")
+var hs = hindsight.New("Hello")
 
 func print(o hindsight.Result) {
 	v := o.Payload().(*int)
@@ -30,7 +30,7 @@ func print(o hindsight.Result) {
 }
 
 func demo(i *int) {
-	defer obs.Observe(print, i)()
+	defer hs.Observe(print, i)() // here we go
 	<-time.After(time.Millisecond * time.Duration(rand.Int63n(1e3)))
 }
 
@@ -40,7 +40,7 @@ func main() {
 		demo(&j)
 		j = i*2
 	}
-	summary := obs.Summary()
+	summary := hs.Summary()
 	fmt.Printf("%s func summary\nLast exec duration %v\nAvg exec duration: %v\nMin exec duration: %v\nMax exec duration: %v\nNumber of exec: %v\n", summary.Namespace(), summary.Last(), summary.Average(), summary.Min(), summary.Max(), summary.Count())
 }
 ```
