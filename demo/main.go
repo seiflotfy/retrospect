@@ -24,8 +24,8 @@ func main() {
 	for i := 0; i < 10; i++ {
 		j := i
 		demo(&j)
-		j = 0
+		j = i * 2
 	}
 	summary := obs.Summary()
-	fmt.Printf("%s func summary\nLast exec duration %v\nAvg exec duration: %v\nMin exec duration: %v\nMax exec duration: %v\nNumber of exec: %v\n", summary.Namespace(), summary.Last(), summary.Average(), summary.Min(), summary.Max(), summary.Count())
+	fmt.Printf("\n%s func summary\n------------------\nLast exec duration %v\nAvg exec duration: %v\nMin exec duration: %v\nMax exec duration: %v\nNumber of exec: %v\n", summary.Namespace(), summary.Last(), summary.Average(), summary.Min(), summary.Max(), summary.Count())
 }
