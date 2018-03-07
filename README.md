@@ -10,12 +10,12 @@ defer hs.Observe(callback, payload)()
 
 to the beginning of a function
 
-```callback``` ==> a function with the signature ```func(o hindsight.Result)```
-```payload``` ==> just an interface{} which will be part of the ```hindsight.Result```
-```hindsight.Result``` will give you access to the the properties:
-* **Count**: how many times the function was called
-* **Payload**: the payload passed to observe
-* **Elapsed**: how did it take the function to execute
+* ```callback``` ==> a function with the signature ```func(o hindsight.Result)```
+* ```payload``` ==> just an interface{} which will be part of the ```hindsight.Result```
+* ```hindsight.Result``` will give you access to the the properties:
+	* **Count**: how many times the function was called
+	* **Payload**: the payload passed to observe
+	* **Elapsed**: how did it take the function to execute
 
 ## Example
 ```go
