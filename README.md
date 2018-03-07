@@ -1,4 +1,6 @@
-# A simple helper for debugging and execution time measuring purposes
+# Hindsight
+
+***NOTE** This is a stupid simple helper for debugging and execution time measuring purposes*
 
 Just add something like ```defer hs.Observe(callback, payload)()``` to the beginning of a function
 ```callback``` ==> a function with the signature ```func(o hindsight.Result)```
