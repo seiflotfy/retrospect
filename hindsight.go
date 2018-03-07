@@ -50,8 +50,8 @@ func (hs *Hindsight) push(elapsed time.Duration, done CallbackFunc, payload inte
 	}
 }
 
-// ObserveSlow returns a function that when called measures the elapsed duration
-// and triggeres the done with the payload as an argument if the given slow duration is exceeded
+// Observe returns a function that when called measures the elapsed duration
+// and triggeres the done with the payload as an argument
 // if called again it will return error
 func (hs *Hindsight) Observe(done CallbackFunc, payload interface{}) func() error {
 	now := time.Now()
