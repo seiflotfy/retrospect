@@ -30,7 +30,7 @@ func (hs *Hindsight) dequeue() {
 			hs.summary.update(o.elapsed)
 			o.count = hs.summary.count
 			if o.done != nil {
-				o.done(*o)
+				go o.done(*o)
 			}
 		case <-hs.clear:
 			hs.queue = make(chan *Result)
