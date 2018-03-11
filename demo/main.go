@@ -5,12 +5,12 @@ import (
 	"math/rand"
 	"time"
 
-	hindsight "github.com/seiflotfy/hindsight"
+	retrospect "github.com/seiflotfy/retrospect"
 )
 
-var obs = hindsight.New("Hello")
+var obs = retrospect.New("Hello")
 
-func print(o hindsight.Result) {
+func print(o retrospect.Result) {
 	v := o.Payload().(*int)
 	fmt.Println(o.Elapsed(), o.Count(), *v)
 }

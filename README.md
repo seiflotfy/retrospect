@@ -1,4 +1,4 @@
-# Hindsight
+# retrospect
 
 ***NOTE** This is a stupid simple helper for debugging and execution time measuring purposes*
 
@@ -10,9 +10,9 @@ defer hs.Observe(callback, payload)()
 
 to the beginning of a function
 
-* ```callback``` ==> a function with the signature ```func(o hindsight.Result)```
-* ```payload``` ==> just an interface{} which will be part of the ```hindsight.Result```
-* ```hindsight.Result``` will give you access to the the properties:
+* ```callback``` ==> a function with the signature ```func(o retrospect.Result)```
+* ```payload``` ==> just an interface{} which will be part of the ```retrospect.Result```
+* ```retrospect.Result``` will give you access to the the properties:
 	* **Count**: how many times the function was called
 	* **Payload**: the payload passed to observe
 	* **Elapsed**: how did it take the function to execute
@@ -26,12 +26,12 @@ import (
 	"math/rand"
 	"time"
 
-	hindsight "github.com/seiflotfy/hindsight"
+	retrospect "github.com/seiflotfy/retrospect"
 )
 
-var hs = hindsight.New("Hello")
+var hs = retrospect.New("Hello")
 
-func print(o hindsight.Result) {
+func print(o retrospect.Result) {
 	v := o.Payload().(*int)
 	fmt.Println(o.Elapsed(), o.Count(), *v)
 }

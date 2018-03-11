@@ -1,12 +1,12 @@
-package hindsight
+package retrospect
 
 import (
 	"fmt"
 	"time"
 )
 
-// Hindsight ...
-type Hindsight struct {
+// Retrospect ...
+type Retrospect struct {
 	summary *Summary
 	queue   chan *Result
 	clear   chan struct{}
@@ -14,8 +14,8 @@ type Hindsight struct {
 }
 
 // New ...
-func New(namespace string) *Hindsight {
-	hs := &Hindsight{
+func New(namespace string) *Retrospect {
+	hs := &Retrospect{
 		summary: newSummary(namespace),
 		queue:   make(chan *Result, 1e5),
 	}
@@ -23,7 +23,7 @@ func New(namespace string) *Hindsight {
 	return hs
 }
 
-func (hs *Hindsight) dequeue() {
+func (hs *Retrospect) dequeue() {
 	for {
 		select {
 		case o := <-hs.queue:
@@ -40,7 +40,7 @@ func (hs *Hindsight) dequeue() {
 	}
 }
 
-func (hs *Hindsight) push(elapsed time.Duration, done CallbackFunc, payload interface{}) {
+func (hs *Retrospect) push(elapsed time.Duration, done CallbackFunc, payload interface{}) {
 	hs.queue <- &Result{
 		namespace: hs.summary.namespace,
 		elapsed:   elapsed,
@@ -53,7 +53,7 @@ func (hs *Hindsight) push(elapsed time.Duration, done CallbackFunc, payload inte
 // Observe returns a function that when called measures the elapsed duration
 // and triggeres the done with the payload as an argument
 // if called again it will return error
-func (hs *Hindsight) Observe(done CallbackFunc, payload interface{}) func() error {
+func (hs *Retrospect) Observe(done CallbackFunc, payload interface{}) func() error {
 	now := time.Now()
 	finished := false
 	return func() error {
@@ -68,16 +68,16 @@ func (hs *Hindsight) Observe(done CallbackFunc, payload interface{}) func() erro
 }
 
 // Summary return a summary of all Results
-func (hs *Hindsight) Summary() *Summary {
+func (hs *Retrospect) Summary() *Summary {
 	return hs.summary
 }
 
 // Clear purges all observations
-func (hs *Hindsight) Clear() {
+func (hs *Retrospect) Clear() {
 	hs.clear <- struct{}{}
 }
 
 // Stop all observations and basically kill the observer
-func (hs *Hindsight) Stop() {
+func (hs *Retrospect) Stop() {
 	hs.stop <- struct{}{}
 }
